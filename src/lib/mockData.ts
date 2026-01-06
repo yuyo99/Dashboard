@@ -8,6 +8,26 @@ export interface DailyMetrics {
   successRate: number
   avgTransactionAmount: number
   failedTransactions: number
+  // New metrics for optimized overview
+  grossPaymentVolume: number
+  grossPaymentCount: number
+  totalPaymentVolume: number
+  totalPaymentCount: number
+  grossWithdrawalsVolume: number
+  grossWithdrawalsCount: number
+  totalWithdrawalsVolume: number
+  totalWithdrawalsCount: number
+  grossSuccessRate: number
+  netSuccessRate: number
+  allAttempts: number
+  successfulAttempts: number
+  hardDeclines: number
+}
+
+export interface MerchantVolumeShare {
+  name: string
+  volume: number
+  percentage: number
 }
 
 export interface PaymentMethod {
@@ -34,6 +54,25 @@ export const generateDailyMetrics = (days: number = 30): DailyMetrics[] => {
     const successRate = 92 + Math.random() * 7
     const failedCount = Math.floor(baseTransactions * (1 - successRate / 100))
 
+    // Generate new payment volume metrics
+    const grossPaymentCount = Math.floor(1200 + Math.random() * 600)
+    const totalPaymentCount = Math.floor(grossPaymentCount * (0.85 + Math.random() * 0.12)) // 85-97% success
+    const grossPaymentVolume = Math.floor(grossPaymentCount * (150 + Math.random() * 100))
+    const totalPaymentVolume = Math.floor(totalPaymentCount * (150 + Math.random() * 100))
+
+    // Generate withdrawal metrics
+    const grossWithdrawalsCount = Math.floor(300 + Math.random() * 200)
+    const totalWithdrawalsCount = Math.floor(grossWithdrawalsCount * (0.88 + Math.random() * 0.10)) // 88-98% success
+    const grossWithdrawalsVolume = Math.floor(grossWithdrawalsCount * (200 + Math.random() * 150))
+    const totalWithdrawalsVolume = Math.floor(totalWithdrawalsCount * (200 + Math.random() * 150))
+
+    // Generate success rate metrics
+    const allAttempts = grossPaymentCount
+    const successfulAttempts = totalPaymentCount
+    const hardDeclines = Math.floor(allAttempts * (0.03 + Math.random() * 0.02)) // 3-5% hard declines
+    const grossSuccessRate = (successfulAttempts / allAttempts) * 100
+    const netSuccessRate = (successfulAttempts / (allAttempts - hardDeclines)) * 100
+
     data.push({
       date: format(date, 'yyyy-MM-dd'),
       revenue: Math.floor(baseRevenue),
@@ -41,6 +80,20 @@ export const generateDailyMetrics = (days: number = 30): DailyMetrics[] => {
       successRate: Math.floor(successRate * 100) / 100,
       avgTransactionAmount: Math.floor(baseRevenue / baseTransactions * 100) / 100,
       failedTransactions: failedCount,
+      // New metrics
+      grossPaymentVolume,
+      grossPaymentCount,
+      totalPaymentVolume,
+      totalPaymentCount,
+      grossWithdrawalsVolume,
+      grossWithdrawalsCount,
+      totalWithdrawalsVolume,
+      totalWithdrawalsCount,
+      grossSuccessRate: Math.floor(grossSuccessRate * 100) / 100,
+      netSuccessRate: Math.floor(netSuccessRate * 100) / 100,
+      allAttempts,
+      successfulAttempts,
+      hardDeclines,
     })
   }
 
@@ -97,6 +150,19 @@ export const topMerchants: TopMerchant[] = [
   { name: 'Home Essentials', revenue: 156700, transactions: 4123 },
   { name: 'Sports Gear Co', revenue: 142300, transactions: 3456 },
 ]
+
+// Mock merchant volume distribution for pie chart
+export const merchantVolumeDistribution: MerchantVolumeShare[] = [
+  { name: 'TechStore Pro', volume: 5234500, percentage: 28.5 },
+  { name: 'Fashion Hub', volume: 4198300, percentage: 22.8 },
+  { name: 'Electronics World', volume: 3187600, percentage: 17.3 },
+  { name: 'Home Essentials', volume: 2756700, percentage: 15.0 },
+  { name: 'Sports Gear Co', volume: 2142300, percentage: 11.6 },
+  { name: 'Others', volume: 898600, percentage: 4.8 },
+]
+
+// Total active merchants
+export const totalActiveMerchants = 247
 
 // Recent transactions (mock)
 export interface Transaction {
